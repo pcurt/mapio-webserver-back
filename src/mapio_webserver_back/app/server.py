@@ -3,6 +3,7 @@ import json
 import logging
 import os
 from enum import Enum
+from typing import Union
 
 from flask import Flask, Response, request  # type: ignore
 from flask_cors import CORS  # type: ignore
@@ -124,7 +125,6 @@ def create_app() -> Flask:
         """
         # scan with
         logger.info("getScan")
-        output = None
         output = os.popen(  # nosec
             "iw wlan0 scan | grep SSID: | awk '{print $2}' | sed '/^$/d'"  # nosec
         ).read()  # nosec
@@ -140,7 +140,7 @@ def create_app() -> Flask:
         return json.dumps(ssids)
 
     @app.route("/docker", methods=["POST", "GET"])
-    def docker() -> Response:
+    def docker() -> Union[str, Response]:
         """Docker setup page
 
         Returns:
@@ -180,8 +180,22 @@ def create_app() -> Flask:
                             ).read()  # nosec
                         else:
                             logger.error("Unknown action")
+            return Response(response="docker", status=200)
 
-        return Response(response="docker", status=200)
+        elif request.method == "GET":
+            logger.info("getScan")
+            output = os.popen("docker ps --format '{{.Names}}'").read()  # nosec
+            containers: list = []
+            for line in output.splitlines():
+                line = line.rstrip("\n")
+                container: dict = dict()
+                container["name"] = line
+                containers.append(container)
+            logger.info(f"Containers : {containers}")
+            return json.dumps(containers)
+
+        else:
+            return Response(response="docker", status=404)
 
     @app.route("/update", methods=["POST", "GET"])
     def update() -> Response:
