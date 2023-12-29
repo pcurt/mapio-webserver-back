@@ -10,7 +10,7 @@ MAPIO webserver front source code
 
 ## Development Quickstart
 
-A quickstart guide/cheatsheet is [available here](./readme/Quickstart.md), that lists the useful commands when developing this package.
+A quickstart guide/cheatsheet is [available here](./Quickstart.md), that lists the useful commands when developing this package.
 
 ## Installation
 
@@ -23,9 +23,9 @@ Note that you should ideally run these `pip` commands in an active [virtualenv](
 To install mapio_webserver_back, download the latest release archive fom Github, and run this command in your terminal:
 
 ``` sh
-pip install mapio_webserver_back-1.0.0-py3-none-any.whl
+pip install mapio_webserver_back-0.1.0-py3-none-any.whl
 # or
-pip install mapio_webserver_back-1.0.0.tar.gz
+pip install mapio_webserver_back-0.1.0.tar.gz
 ```
 
 ### From sources
@@ -35,7 +35,7 @@ The sources for mapio_webserver_back can be downloaded from the [Github repo](ht
 Start by cloning the repository:
 
 ``` sh
-git clone git@github.com:pcurt/mapio_webserver_back.git
+git clone https://github.com/pcurt/mapio_webserver_back
 ```
 
 Then enter the cloned directory (with `cd mapio_webserver_back/`), and install the project with:
