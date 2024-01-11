@@ -113,6 +113,9 @@ def create_app() -> Flask:
                 os.popen(  # nosec
                     "systemctl restart wpa_supplicant@wlan0.service"  # nosec
                 ).read()  # nosec
+                os.popen(  # nosec
+                    "systemctl enable wpa_supplicant@wlan0.service"  # nosec
+                ).read()  # nosec
 
         return Response(response="wifi", status=200)
 
