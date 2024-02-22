@@ -9,7 +9,7 @@ from typing import Optional
 
 # Third-party lib imports
 import click
-from waitress import serve  # type: ignore
+from waitress import serve
 
 from mapio_webserver_back.app.server import create_app
 
@@ -49,12 +49,12 @@ def main(
 
 @main.command()
 def app() -> None:
-    logger = logging.getLogger((__name__))
+    """App entrypoint."""
+    logger = logging.getLogger(__name__)
     logger.info("Start server")
 
     app = create_app()
-    serve(app, port=8456, host="0.0.0.0")  # nosec
-    # app.run(port=8456, host="0.0.0.0", debug=True)
+    serve(app, port=8456, host="0.0.0.0")  # noqa
 
     logger.info("Server is stopped")
 
