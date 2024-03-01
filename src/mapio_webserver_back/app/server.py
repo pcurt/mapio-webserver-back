@@ -181,7 +181,7 @@ def create_app() -> Flask:
             return Response(response="docker", status=200)
 
         if request.method == "GET":
-            logger.info("getScan")
+            logger.info("getDocker")
             output = os.popen("docker ps --format '{{.Names}}'").read()  # noqa
             containers: list[dict[str, str]] = []
             for line in output.splitlines():
@@ -192,6 +192,43 @@ def create_app() -> Flask:
             return json.dumps(containers)
 
         return Response(response="docker", status=404)
+
+    @app.route("/docker-custom", methods=["POST", "GET"])
+    def docker_custom() -> Union[str, Response]:
+        """Get Docker spectific running container.
+
+        Returns:
+            Response
+        """
+        if request.method == "POST":
+            logger.info("docker-custom")
+            logger.info(f"request.values : {request.values}")
+            logger.info(f"request.values2 : {request.form.to_dict(flat=False)}")
+            logger.info(f"request.values3 : {request.form.to_dict()}")
+            logger.info(f"request.values4 : {request.form.to_dict().popitem()}")
+            logger.info(f"request.values5 : {request.form.to_dict().popitem()[0]}")
+            data = request.form.to_dict().popitem()[0]
+            json_data: Any = json.loads(data) if data else None
+
+            logger.info(f"data {data}")
+            services = json_data.get("selectedServices")
+            logger.info(f"services {services}")
+            for service in services:
+                action: Any = json_data.get("select_action")
+                os.popen(f"docker {action} {service.lower()}").read()  # noqa
+
+        if request.method == "GET":
+            output = os.popen("docker ps -a --format '{{.Names}} {{.Status}}'").read()  # noqa
+            containers: list[dict[str, str]] = []
+            for line in output.splitlines():
+                line = line.rstrip("\n")
+                container = {"name": line.split(" ")[0], "status": line.split(" ")[1]}
+                containers.append(container)
+
+            logger.info(f"Containers : {containers}")
+            return json.dumps(containers)
+
+        return Response(response="docker-custom", status=404)
 
     @app.route("/update", methods=["POST", "GET"])
     def update() -> Response:
