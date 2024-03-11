@@ -165,16 +165,16 @@ def create_app() -> Flask:
                     if item.get("selected"):
                         if action == "restart":
                             os.popen(
-                                f"docker-compose -f /home/root/{service.lower()}/docker-compose.yml restart"  # noqa
+                                f"docker-compose -f /home/root/mapio/docker-compose.yml restart {service.lower()}"  # noqa
                             ).read()
                         elif action == "stop":
                             os.popen(
-                                f"docker-compose -f /home/root/{service.lower()}/docker-compose.yml stop"  # noqa
+                                f"docker-compose -f /home/root/mapio/docker-compose.yml stop {service.lower()}"  # noqa
                             ).read()
                         elif action == "update":
                             os.popen(
-                                f"docker-compose -f /home/root/{service.lower()}/docker-compose.yml\
- pull && docker-compose -f /home/root/{service.lower()}/docker-compose.yml up -d --force-recreate"  # noqa
+                                f"docker-compose -f /home/root/mapio/docker-compose.yml \
+ pull {service.lower()} && docker-compose -f /home/root/mapio/docker-compose.yml up -d --force-recreate {service.lower()}"  # noqa
                             ).read()
                         else:
                             logger.error("Unknown action")
@@ -201,16 +201,8 @@ def create_app() -> Flask:
             Response
         """
         if request.method == "POST":
-            logger.info("docker-custom")
-            logger.info(f"request.values : {request.values}")
-            logger.info(f"request.values2 : {request.form.to_dict(flat=False)}")
-            logger.info(f"request.values3 : {request.form.to_dict()}")
-            logger.info(f"request.values4 : {request.form.to_dict().popitem()}")
-            logger.info(f"request.values5 : {request.form.to_dict().popitem()[0]}")
             data = request.form.to_dict().popitem()[0]
             json_data: Any = json.loads(data) if data else None
-
-            logger.info(f"data {data}")
             services = json_data.get("selectedServices")
             logger.info(f"services {services}")
             for service in services:
@@ -225,7 +217,6 @@ def create_app() -> Flask:
                 container = {"name": line.split(" ")[0], "status": line.split(" ")[1]}
                 containers.append(container)
 
-            logger.info(f"Containers : {containers}")
             return json.dumps(containers)
 
         return Response(response="docker-custom", status=404)
