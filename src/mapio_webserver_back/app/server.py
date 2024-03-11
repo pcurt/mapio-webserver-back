@@ -165,23 +165,23 @@ def create_app() -> Flask:
                     if item.get("selected"):
                         if action == "restart":
                             os.popen(
-                                f"docker-compose -f /home/root/{service.lower()}/docker-compose.yml restart"  # noqa
+                                f"docker-compose -f /home/root/mapio/docker-compose.yml restart {service.lower()}"  # noqa
                             ).read()
                         elif action == "stop":
                             os.popen(
-                                f"docker-compose -f /home/root/{service.lower()}/docker-compose.yml stop"  # noqa
+                                f"docker-compose -f /home/root/mapio/docker-compose.yml stop {service.lower()}"  # noqa
                             ).read()
                         elif action == "update":
                             os.popen(
-                                f"docker-compose -f /home/root/{service.lower()}/docker-compose.yml\
- pull && docker-compose -f /home/root/{service.lower()}/docker-compose.yml up -d --force-recreate"  # noqa
+                                f"docker-compose -f /home/root/mapio/docker-compose.yml \
+ pull {service.lower()} && docker-compose -f /home/root/mapio/docker-compose.yml up -d --force-recreate {service.lower()}"  # noqa
                             ).read()
                         else:
                             logger.error("Unknown action")
             return Response(response="docker", status=200)
 
         if request.method == "GET":
-            logger.info("getScan")
+            logger.info("getDocker")
             output = os.popen("docker ps --format '{{.Names}}'").read()  # noqa
             containers: list[dict[str, str]] = []
             for line in output.splitlines():
@@ -192,6 +192,34 @@ def create_app() -> Flask:
             return json.dumps(containers)
 
         return Response(response="docker", status=404)
+
+    @app.route("/docker-custom", methods=["POST", "GET"])
+    def docker_custom() -> Union[str, Response]:
+        """Get Docker spectific running container.
+
+        Returns:
+            Response
+        """
+        if request.method == "POST":
+            data = request.form.to_dict().popitem()[0]
+            json_data: Any = json.loads(data) if data else None
+            services = json_data.get("selectedServices")
+            logger.info(f"services {services}")
+            for service in services:
+                action: Any = json_data.get("select_action")
+                os.popen(f"docker {action} {service.lower()}").read()  # noqa
+
+        if request.method == "GET":
+            output = os.popen("docker ps -a --format '{{.Names}} {{.Status}}'").read()  # noqa
+            containers: list[dict[str, str]] = []
+            for line in output.splitlines():
+                line = line.rstrip("\n")
+                container = {"name": line.split(" ")[0], "status": line.split(" ")[1]}
+                containers.append(container)
+
+            return json.dumps(containers)
+
+        return Response(response="docker-custom", status=404)
 
     @app.route("/update", methods=["POST", "GET"])
     def update() -> Response:
